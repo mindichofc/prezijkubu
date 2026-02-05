@@ -31,7 +31,7 @@ body {
   background:#0b0b0b;
   padding:15px;
   border-radius:8px;
-  height:360px;
+  height:340px;
   overflow-y:auto;
   text-align:left;
   margin-bottom:15px;
@@ -39,13 +39,13 @@ body {
   line-height:1.6;
 }
 
-.chat p { margin:8px 0; }
+.chat p {
+  margin:8px 0;
+}
 
 .you { color:#4fc3f7; }
 .kuba { color:#ff6b6b; }
-.libor { color:#6bcf95; }
-.train { color:#ffd166; font-style:italic; }
-.bus { color:#cdb4db; font-style:italic; }
+.iniss { color:#ffd166; font-style:italic; }
 
 button {
   padding:12px 18px;
@@ -58,22 +58,15 @@ button {
 
 <body>
 <div id="game">
-  <h1>🚶‍♂️ Přežij procházku</h1>
+  <h1>🚶‍♂️ Přežij procházku s Kubou</h1>
 
-  <div id="menu">
-    <p>Vyber režim:</p>
-    <button onclick="startGame('kuba')">Procházka s Kubou</button>
-    <button onclick="startGame('kubaLibor')">Procházka s Kubou a Liborem</button>
+  <div class="level">
+    📍 Úroveň <span id="level">1</span> / <span id="max">7</span>
   </div>
 
-  <div id="hud" style="display:none">
-    <div class="level">
-      📍 Úroveň <span id="level">1</span> / <span id="max">7</span>
-    </div>
-    <div class="stats">
-      ❤️ HP: <span id="hp">3</span> |
-      🧠 Nervy: <span id="nerves">5</span>
-    </div>
+  <div class="stats">
+    ❤️ HP: <span id="hp">3</span> |
+    🧠 Nervy: <span id="nerves">5</span>
   </div>
 
   <div class="chat" id="chat"></div>
@@ -81,7 +74,9 @@ button {
 </div>
 
 <script>
-let hp, nerves, stage, mode;
+let hp = 3;
+let nerves = 5;
+let stage = 0;
 
 const chat = document.getElementById("chat");
 const choicesEl = document.getElementById("choices");
@@ -89,8 +84,6 @@ const hpEl = document.getElementById("hp");
 const nervesEl = document.getElementById("nerves");
 const levelEl = document.getElementById("level");
 const maxEl = document.getElementById("max");
-const menu = document.getElementById("menu");
-const hud = document.getElementById("hud");
 
 function add(text, cls) {
   chat.innerHTML += `<p class="${cls}">${text}</p>`;
@@ -103,104 +96,104 @@ function updateStats() {
   levelEl.textContent = stage + 1;
 }
 
-/* ===== HLÁŠENÍ ===== */
-
-// VLaky – Kuba (Beroun / Rokycany)
-const TRAIN = [
+/* ===== INISS – BEROUN & ROKYCANY ===== */
+const INISS = [
   "Hlášení pro cestující: Osobní vlak do Berouna odjede z koleje číslo dvě.",
-  "Upozorňujeme cestující, že vlak ve směru Zdice má zpoždění deset minut.",
-  "Vlak bude opožděn v úseku Hořovice – Zdice.",
+  "Upozorňujeme cestující, že vlak ve směru Zdice má zpoždění přibližně deset minut.",
+  "Vlak bude opožděn z provozních důvodů v úseku Hořovice – Zdice.",
   "Osobní vlak do Rokycan ukončí jízdu ve stanici Beroun.",
-  "Dbejte zvýšené opatrnosti při pohybu v kolejišti ve stanici Zdice."
+  "Dbejte zvýšené opatrnosti při přecházení kolejí ve stanici Zdice.",
+  "Hlášení pro cestující: Ve stanici Kařízek dojde ke změně nástupiště.",
+  "Upozorňujeme cestující, že ve stanici Hořovice nebude zajištěn přestup.",
+  "Osobní vlak ve směru Rokycany je opožděn z důvodu křižování vlaků."
 ];
 
-// Autobusy PID – Libor
-const BUS = [
-  "Linka 637 směr Beroun, autobusové nádraží, zpoždění pět minut.",
-  "Upozorňujeme cestující, že spoj linky 633 vyčká přípoje.",
-  "Zastávka Zdice, náměstí – výstup předními dveřmi.",
-  "Spoj do Hořovic je opožděn z důvodu silného provozu.",
-  "Konečná stanice Beroun, autobusové nádraží."
-];
-
-function random(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function randomINISS() {
+  return INISS[Math.floor(Math.random() * INISS.length)];
 }
 
-/* ===== REŽIM: PROCHÁZKA S KUBOU (7 ÚROVNÍ) ===== */
-
-const stagesKuba = [
+/* ===== ÚROVNĚ – KUBŮV HOVOR ===== */
+const stages = [
 {
-  intro: "Kuba hned po výstupu vytahuje mobil.",
+  intro: "Kuba hned po výstupu vytahuje mobil a kouká kolem sebe.",
   choices: [
     {
-      you: "Zase hlášení?",
+      you: "To fakt musíš nahrávat hned?",
       result: () => {
-        add("Kuba: „Jo, teď je to dobrý.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Jo, tady je to dobrý.“", "kuba");
+        add("Kuba: „Ten zvuk se může hodit.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves--;
       }
     },
     {
-      you: "Nemohlo by být chvíli ticho?",
+      you: "Zase ty hlášení?",
       result: () => {
-        add("Kuba: „To by byla škoda.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Vždyť to slyšíš sám.“", "kuba");
+        add("Kuba: „Tohle je pěkný místo.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves -= 2;
       }
     }
   ]
 },
+
 {
   intro: "Cesta se zužuje, Kuba jde skoro u kraje.",
   choices: [
     {
-      you: "Pojď radši víc ke mně.",
+      you: "Hele, pojď radši víc ke mně.",
       result: () => {
         add("Kuba: „V pohodě, tady chodím furt.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Nic tu nejezdí.“", "kuba");
+        add(randomINISS(), "iniss");
         hp--;
       }
     },
     {
       you: "Jestli spadneš, tak tě tahat nebudu.",
       result: () => {
+        add("Kuba: „Já nespadnu.“", "kuba");
         add("Kuba: „To by byla smůla.“", "kuba");
-        add(random(TRAIN), "train");
+        add(randomINISS(), "iniss");
         nerves--;
       }
     }
   ]
 },
+
 {
-  intro: "Bláto a kaluže, Kuba se nezastavuje.",
+  intro: "Bláto, kaluže a rozježděná stezka.",
   choices: [
     {
-      you: "Tudy se jít nedá.",
+      you: "Tudy se fakt jít nedá.",
       result: () => {
-        add("Kuba: „Ale jo, to projde.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Ale jo, jen se nesmíš bát.“", "kuba");
+        add("Kuba: „Vlaky se tady taky brodí.“", "kuba");
+        add(randomINISS(), "iniss");
         hp--;
       }
     },
     {
-      you: "Nemohli jsme jít normálně?",
+      you: "Nemohli jsme jít normálně po cestě?",
       result: () => {
-        add("Kuba: „Tam nic není slyšet.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Tam nic neuslyšíš.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves--;
       }
     }
   ]
 },
+
 {
-  intro: "Začne pršet.",
+  intro: "Začne pršet. Kuba se ani nezastaví.",
   choices: [
     {
-      you: "Tobě to nevadí?",
+      you: "Tobě ten déšť nevadí?",
       result: () => {
         add("Kuba: „Aspoň to není suchý.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Je to lepší zvuk.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves -= 2;
       }
     },
@@ -208,20 +201,23 @@ const stagesKuba = [
       you: "Mně už z toho hučí v hlavě.",
       result: () => {
         add("Kuba: „To přejde.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Mně to dělá furt.“", "kuba");
+        add(randomINISS(), "iniss");
         hp--;
       }
     }
   ]
 },
+
 {
-  intro: "Zakopneš o kámen.",
+  intro: "Zakopneš o kámen, Kuba se otočí jen napůl.",
   choices: [
     {
-      you: "Pomoz mi!",
+      you: "Pomoz mi vstát!",
       result: () => {
-        add("Kuba: „Počkej, teď to hlásí.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Počkej chvilku.“", "kuba");
+        add("Kuba: „Teď to zrovna hlásí.“", "kuba");
+        add(randomINISS(), "iniss");
         hp--;
         nerves--;
       }
@@ -229,103 +225,52 @@ const stagesKuba = [
     {
       you: "Ty máš fakt priority.",
       result: () => {
-        add("Kuba: „No jo.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „Vždyť už jdeš.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves--;
       }
     }
   ]
 },
+
 {
-  intro: "Kuba kouká na mobil.",
+  intro: "Kuba kouká na displej.",
   choices: [
     {
-      you: "Kolik máš baterky?",
+      you: "Tak co, kolik máš baterky?",
       result: () => {
         add("Kuba: „Dvě procenta.“", "kuba");
-        add("Kuba: „To ještě vydrží.“", "kuba");
+        add("Kuba: „To ještě chvíli vydrží.“", "kuba");
         nerves++;
       }
     },
     {
-      you: "Tak to vypni.",
+      you: "Tak už to vypni.",
       result: () => {
         add("Kuba: „Teď už ne.“", "kuba");
-        add(random(TRAIN), "train");
+        add("Kuba: „To by byla škoda.“", "kuba");
+        add(randomINISS(), "iniss");
         nerves--;
       }
     }
   ]
 },
+
 {
   intro: "Došli jste k silnici. Je ticho.",
   choices: [
     {
-      you: "Tak už jdeme domů?",
+      you: "Tak… už jdeme domů?",
       result: () => {
         add("Kuba: „Jo, pro dnešek stačilo.“", "kuba");
+        add("Kuba: „Zítra se může jít znova.“", "kuba");
       }
     }
   ]
 }
 ];
 
-/* ===== REŽIM: KUBA + LIBOR ===== */
-
-const stagesKubaLibor = [
-{
-  intro: "Kuba i Libor se zastaví skoro zároveň.",
-  choices: [
-    {
-      you: "To snad ne oba dva…",
-      result: () => {
-        add("Kuba: „Počkej, teď to hlásí.“", "kuba");
-        add(random(TRAIN), "train");
-        add("Libor: „No jo, autobus taky.“", "libor");
-        add(random(BUS), "bus");
-        nerves -= 2;
-      }
-    },
-    {
-      you: "Aspoň se domluvte.",
-      result: () => {
-        add("Libor: „Já jedu první.“", "libor");
-        add(random(BUS), "bus");
-        add("Kuba: „Tak hned po tobě.“", "kuba");
-        add(random(TRAIN), "train");
-        nerves--;
-      }
-    }
-  ]
-}
-];
-
-/* ===== HRA ===== */
-
-function startGame(selectedMode) {
-  mode = selectedMode;
-  hp = 3;
-  nerves = 5;
-  stage = 0;
-
-  chat.innerHTML = "";
-  choicesEl.innerHTML = "";
-  menu.style.display = "none";
-  hud.style.display = "block";
-
-  const stages = mode === "kuba" ? stagesKuba : stagesKubaLibor;
-  maxEl.textContent = stages.length;
-
-  add("Ty: „Tak jdeme…“", "you");
-  if (mode === "kuba") {
-    add("Kuba: „Jen se projít.“", "kuba");
-  } else {
-    add("Kuba: „Jen se projít.“", "kuba");
-    add("Libor: „Stejně tu něco pojede.“", "libor");
-  }
-
-  nextStage();
-}
+maxEl.textContent = stages.length;
 
 function endGame(msg) {
   add(msg, "kuba");
@@ -333,16 +278,14 @@ function endGame(msg) {
 }
 
 function nextStage() {
-  if (hp <= 0) return endGame("💀 „No jo…“");
-  if (nerves <= 0) return endGame("🤯 „To už stačilo.“");
-
-  const stages = mode === "kuba" ? stagesKuba : stagesKubaLibor;
-  if (stage >= stages.length) return endGame("🏆 „Tak zas někdy.“");
+  if (hp <= 0) return endGame("💀 Kuba: „No jo… hlavně že to šlo slyšet.“");
+  if (nerves <= 0) return endGame("🤯 Kuba: „Asi už toho máš dost.“");
+  if (stage >= stages.length) return endGame("🏆 Kuba: „Tak zítra třeba Hořovice.“");
 
   updateStats();
   const s = stages[stage];
 
-  add(`<strong>— ÚROVEŇ ${stage + 1} —</strong>`, "train");
+  add(`<strong>— ÚROVEŇ ${stage + 1} —</strong>`, "iniss");
   add("Kuba: " + s.intro, "kuba");
 
   choicesEl.innerHTML = "";
@@ -354,14 +297,22 @@ function nextStage() {
       add("Ty: " + c.you, "you");
       c.result();
       updateStats();
+
       const nextBtn = document.createElement("button");
       nextBtn.textContent = "▶ Pokračovat";
-      nextBtn.onclick = () => { stage++; nextStage(); };
+      nextBtn.onclick = () => {
+        stage++;
+        nextStage();
+      };
       choicesEl.appendChild(nextBtn);
     };
     choicesEl.appendChild(b);
   });
 }
+
+add("Kuba: „Nazdar. Půjdeme se jen projít.“", "kuba");
+add("Kuba: „Stejně je to kousek.“", "kuba");
+nextStage();
 </script>
 </body>
 </html>
