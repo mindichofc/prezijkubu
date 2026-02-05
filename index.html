@@ -105,32 +105,33 @@ function updateStats() {
 
 /* ===== HLÁŠENÍ ===== */
 
-// VLaky – Kuba
+// VLaky – Kuba (Beroun / Rokycany)
 const TRAIN = [
   "Hlášení pro cestující: Osobní vlak do Berouna odjede z koleje číslo dvě.",
   "Upozorňujeme cestující, že vlak ve směru Zdice má zpoždění deset minut.",
   "Vlak bude opožděn v úseku Hořovice – Zdice.",
-  "Osobní vlak do Rokycan ukončí jízdu ve stanici Beroun."
+  "Osobní vlak do Rokycan ukončí jízdu ve stanici Beroun.",
+  "Dbejte zvýšené opatrnosti při pohybu v kolejišti ve stanici Zdice."
 ];
 
 // Autobusy PID – Libor
 const BUS = [
-  "Linka 637 směr Beroun, aut. nádr., zpoždění pět minut.",
+  "Linka 637 směr Beroun, autobusové nádraží, zpoždění pět minut.",
   "Upozorňujeme cestující, že spoj linky 633 vyčká přípoje.",
   "Zastávka Zdice, náměstí – výstup předními dveřmi.",
   "Spoj do Hořovic je opožděn z důvodu silného provozu.",
-  "Konečná stanice Beroun, aut. nádr."
+  "Konečná stanice Beroun, autobusové nádraží."
 ];
 
 function random(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/* ===== REŽIMY ===== */
+/* ===== REŽIM: PROCHÁZKA S KUBOU (7 ÚROVNÍ) ===== */
 
 const stagesKuba = [
 {
-  intro: "Kuba vytahuje mobil hned po výstupu.",
+  intro: "Kuba hned po výstupu vytahuje mobil.",
   choices: [
     {
       you: "Zase hlášení?",
@@ -149,8 +150,127 @@ const stagesKuba = [
       }
     }
   ]
+},
+{
+  intro: "Cesta se zužuje, Kuba jde skoro u kraje.",
+  choices: [
+    {
+      you: "Pojď radši víc ke mně.",
+      result: () => {
+        add("Kuba: „V pohodě, tady chodím furt.“", "kuba");
+        add(random(TRAIN), "train");
+        hp--;
+      }
+    },
+    {
+      you: "Jestli spadneš, tak tě tahat nebudu.",
+      result: () => {
+        add("Kuba: „To by byla smůla.“", "kuba");
+        add(random(TRAIN), "train");
+        nerves--;
+      }
+    }
+  ]
+},
+{
+  intro: "Bláto a kaluže, Kuba se nezastavuje.",
+  choices: [
+    {
+      you: "Tudy se jít nedá.",
+      result: () => {
+        add("Kuba: „Ale jo, to projde.“", "kuba");
+        add(random(TRAIN), "train");
+        hp--;
+      }
+    },
+    {
+      you: "Nemohli jsme jít normálně?",
+      result: () => {
+        add("Kuba: „Tam nic není slyšet.“", "kuba");
+        add(random(TRAIN), "train");
+        nerves--;
+      }
+    }
+  ]
+},
+{
+  intro: "Začne pršet.",
+  choices: [
+    {
+      you: "Tobě to nevadí?",
+      result: () => {
+        add("Kuba: „Aspoň to není suchý.“", "kuba");
+        add(random(TRAIN), "train");
+        nerves -= 2;
+      }
+    },
+    {
+      you: "Mně už z toho hučí v hlavě.",
+      result: () => {
+        add("Kuba: „To přejde.“", "kuba");
+        add(random(TRAIN), "train");
+        hp--;
+      }
+    }
+  ]
+},
+{
+  intro: "Zakopneš o kámen.",
+  choices: [
+    {
+      you: "Pomoz mi!",
+      result: () => {
+        add("Kuba: „Počkej, teď to hlásí.“", "kuba");
+        add(random(TRAIN), "train");
+        hp--;
+        nerves--;
+      }
+    },
+    {
+      you: "Ty máš fakt priority.",
+      result: () => {
+        add("Kuba: „No jo.“", "kuba");
+        add(random(TRAIN), "train");
+        nerves--;
+      }
+    }
+  ]
+},
+{
+  intro: "Kuba kouká na mobil.",
+  choices: [
+    {
+      you: "Kolik máš baterky?",
+      result: () => {
+        add("Kuba: „Dvě procenta.“", "kuba");
+        add("Kuba: „To ještě vydrží.“", "kuba");
+        nerves++;
+      }
+    },
+    {
+      you: "Tak to vypni.",
+      result: () => {
+        add("Kuba: „Teď už ne.“", "kuba");
+        add(random(TRAIN), "train");
+        nerves--;
+      }
+    }
+  ]
+},
+{
+  intro: "Došli jste k silnici. Je ticho.",
+  choices: [
+    {
+      you: "Tak už jdeme domů?",
+      result: () => {
+        add("Kuba: „Jo, pro dnešek stačilo.“", "kuba");
+      }
+    }
+  ]
 }
 ];
+
+/* ===== REŽIM: KUBA + LIBOR ===== */
 
 const stagesKubaLibor = [
 {
@@ -180,7 +300,7 @@ const stagesKubaLibor = [
 }
 ];
 
-/* ===== START ===== */
+/* ===== HRA ===== */
 
 function startGame(selectedMode) {
   mode = selectedMode;
@@ -201,7 +321,7 @@ function startGame(selectedMode) {
     add("Kuba: „Jen se projít.“", "kuba");
   } else {
     add("Kuba: „Jen se projít.“", "kuba");
-    add("Libor: „Stejně tu za chvíli něco pojede.“", "libor");
+    add("Libor: „Stejně tu něco pojede.“", "libor");
   }
 
   nextStage();
